@@ -5,183 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bhal Thakibi!</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-    
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
-        :root {
-            --bg-warm: #F7F5F0;
-            --text-dark: #2C2C2C;      
-            --text-muted: #5A5A5A;     
-            --accent-clay: #B68D77;
-            --accent-glow: #D9B39F;
-        }
-        body {
-            background-color: var(--bg-warm);
-            color: var(--text-dark);
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            overflow: hidden; 
-            position: relative;
-        }
-        .font-serif { font-family: 'Lora', serif; }
-        
-        .fade-in { animation: fadeIn 0.8s ease-in forwards; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        #timeline-container {
-            width: 100%;
-            height: 2px;
-            background: rgba(182, 141, 119, 0.2);
-            margin-top: 40px;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        #timeline-bar {
-            height: 100%;
-            width: 100%;
-            background: var(--accent-clay);
-            transform-origin: left;
-            transition: width 1s linear;
-        }
-
-        .ripple {
-            border-radius: 50%;
-            background: var(--accent-glow);
-            animation: ripple-anim 3s infinite ease-in-out;
-            opacity: 0.4;
-        }
-        @keyframes ripple-anim {
-            0% { transform: scale(0.8); opacity: 0.5; }
-            100% { transform: scale(2.5); opacity: 0; }
-        }
-
-        .flower-container {
-            position: absolute;
-            z-index: 0;
-            pointer-events: auto; 
-            cursor: pointer;
-            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.03));
-        }
-        .flower-container:hover { transform: scale(1.08) rotate(10deg); }
-        .watercolor-petal { mix-blend-mode: multiply; }
-        main { position: relative; z-index: 10; }
+        :root { --bg-warm: #F7F5F0; --accent-clay: #B68D77; }
+        body { background-color: var(--bg-warm); font-family: sans-serif; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-6 relative">
-
-    <!-- WATERCOLOR FLOWERS -->
-    <svg class="flower-container" style="top: -5%; left: -5%; width: 280px; height: 280px; opacity: 0.85;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-        <defs><filter id="watercolor-effect"><feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="1"/></filter></defs>
-        <g filter="url(#watercolor-effect)">
-            <path class="watercolor-petal" fill="#E8CFC0" d="M102,-80C125,-60,135,-30,138,4C141,38,137,76,114,94C91,112,45,110,6,106C-33,102,-66,96,-87,78C-108,60,-117,30,-115,-1C-113,-32,-100,-64,-79,-84C-58,-104,-29,-112,3,-115C35,-118,79,-100,102,-80Z" transform="translate(100 100) scale(0.7) rotate(15)" opacity="0.6"/>
-            <circle cx="100" cy="100" r="8" fill="#8A6B58" opacity="0.9"/>
-        </g>
-    </svg>
-
-    <!-- VIEW 1: LANDING -->
-    <main id="view-landing" class="text-center max-w-md w-full flex flex-col items-center fade-in">
-        <h1 class="font-serif text-3xl md:text-4xl tracking-wide text-[var(--text-dark)] mb-4">Bhal Thakibi!</h1>
-        <p class="font-serif text-[var(--text-muted)] text-lg mb-16">Some words are too heavy to carry alone.<br>Leave them here.</p>
-        <div class="flex flex-col gap-6 w-full px-8">
-            <button onclick="switchView('view-speak')" class="py-4 border border-[var(--accent-clay)] text-[var(--accent-clay)] rounded-full tracking-widest uppercase text-xs font-medium hover:bg-[var(--accent-clay)] hover:text-[#F7F5F0] transition-colors duration-500 bg-white/30 backdrop-blur-sm">Speak</button>
-            <button onclick="switchView('view-listen')" class="py-4 text-[var(--text-muted)] rounded-full tracking-widest uppercase text-xs font-medium hover:text-[var(--text-dark)] transition-colors duration-500 bg-white/30 backdrop-blur-sm">Listen</button>
-        </div>
-    </main>
-
-    <!-- VIEW 2: SPEAK -->
-    <main id="view-speak" class="hidden text-center max-w-md w-full flex-col items-center fade-in bg-white/20 backdrop-blur-sm p-8 rounded-3xl">
-        <p id="record-prompt" class="font-serif text-[var(--text-muted)] text-lg mb-16 h-12">Take a deep breath.<br>You have 60 seconds.</p>
-        <button id="record-btn" onclick="toggleRecording()" class="w-24 h-24 rounded-full bg-[var(--accent-clay)] shadow-[0_0_20px_rgba(182,141,119,0.3)] flex items-center justify-center transition-all duration-500 hover:scale-105 group relative">
-            <div id="record-inner" class="w-8 h-8 bg-[#F7F5F0] rounded-full transition-all duration-300"></div>
-        </button>
-        <p id="record-status" class="mt-8 text-xs tracking-widest uppercase text-[var(--accent-clay)] opacity-0 transition-opacity duration-500">Recording...</p>
-        <div id="timeline-container" class="opacity-0 transition-opacity duration-500"><div id="timeline-bar"></div></div>
-        <button onclick="cancelAction()" id="cancel-btn" class="mt-12 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] transition-colors">Cancel</button>
-    </main>
-
-    <!-- VIEW 3: SUCCESS -->
-    <main id="view-success" class="hidden text-center max-w-md w-full flex-col items-center fade-in bg-white/30 backdrop-blur-sm p-8 rounded-3xl">
-        <p class="font-serif text-[var(--text-dark)] text-xl mb-12">Your words have been heard.<br>They are safe here.</p>
-        <button onclick="switchView('view-landing')" class="py-3 px-8 border border-[var(--accent-clay)] text-[var(--accent-clay)] rounded-full tracking-widest uppercase text-[10px] font-medium hover:bg-[var(--accent-clay)] hover:text-[#F7F5F0] transition-colors duration-500">Return</button>
-    </main>
-
-    <!-- VIEW 4: LISTEN -->
-    <main id="view-listen" class="hidden text-center max-w-md w-full flex-col items-center justify-center h-full fade-in relative bg-white/20 backdrop-blur-sm p-8 rounded-3xl">
-        <button onclick="leaveListenMode()" class="absolute top-6 left-6 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] flex items-center gap-2 z-20">← Back</button>
-        <div class="relative w-32 h-32 flex items-center justify-center mb-12 mt-16"><div class="absolute w-full h-full ripple"></div><div class="absolute w-20 h-20 rounded-full bg-[var(--accent-glow)] opacity-50"></div></div>
-        <p id="listen-status" class="font-serif text-[var(--text-muted)] text-lg mb-16">Listening to the void...</p>
-    </main>
+<body class="flex flex-col items-center justify-center min-h-screen">
+    <h1 class="text-3xl mb-4">Bhal Thakibi!</h1>
+    <button id="speak-btn" onclick="toggleRecording()" class="w-24 h-24 rounded-full bg-[#B68D77] text-white">
+        Speak
+    </button>
+    <p id="status" class="mt-4">Ready</p>
 
     <script>
+        console.log("Page loaded!");
         const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
+        
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const views = ['view-landing', 'view-speak', 'view-success', 'view-listen'];
-        let isRecording = false, recordingInterval, timeLeft = 60, mediaRecorder, audioChunks = [], currentAudioPlayer = new Audio();
-
-        function switchView(targetId) {
-            views.forEach(id => {
-                const el = document.getElementById(id);
-                el.classList.toggle('hidden', id !== targetId);
-                el.classList.toggle('flex', id === targetId);
-            });
-            if (targetId === 'view-listen') startListeningMode();
-        }
+        console.log("Supabase connected!");
 
         async function toggleRecording() {
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                    mediaRecorder.onstop = async () => {
-                        const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                        stream.getTracks().forEach(t => t.stop());
-                        const { error } = await supabase.storage.from('voice-notes').upload(`note_${Date.now()}.webm`, blob);
-                        if (error) alert("Save failed."); else switchView('view-success');
-                    };
-                    mediaRecorder.start(); isRecording = true;
-                    document.getElementById('record-status').classList.remove('opacity-0');
-                    document.getElementById('timeline-container').classList.remove('opacity-0');
-                    recordingInterval = setInterval(() => {
-                        if (--timeLeft <= 0) finishRecording();
-                        document.getElementById('timeline-bar').style.width = (timeLeft/60)*100 + '%';
-                    }, 1000);
-                } catch (err) { alert("Microphone access needed."); }
-            } else finishRecording();
+            alert("Button clicked! If you see this, the button is connected.");
+            console.log("Button clicked!");
         }
-
-        function finishRecording() {
-            clearInterval(recordingInterval); isRecording = false;
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-        }
-
-        function cancelAction() {
-            if (mediaRecorder) { mediaRecorder.onstop = null; mediaRecorder.stop(); }
-            switchView('view-landing');
-        }
-
-        async function startListeningMode() {
-            const { data } = await supabase.storage.from('voice-notes').list();
-            const files = data.filter(f => f.name.endsWith('.webm'));
-            if (files.length === 0) document.getElementById('listen-status').innerText = "The void is quiet.";
-            else {
-                const url = supabase.storage.from('voice-notes').getPublicUrl(files[Math.floor(Math.random()*files.length)].name).data.publicUrl;
-                currentAudioPlayer.src = url; currentAudioPlayer.play();
-            }
-        }
-
-        function leaveListenMode() { currentAudioPlayer.pause(); switchView('view-landing'); }
     </script>
 </body>
 </html>
