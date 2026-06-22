@@ -1,82 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bhal Thakibi - Fresh Start</title>
-    <!-- Tailwind and Supabase -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body class="bg-[#F7F5F0] text-[#2C2C2C] flex flex-col items-center justify-center min-h-screen">
+<script>
+    // 1. Connection Config
+    const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
     
-    <h1 class="text-3xl font-serif mb-8">Bhal Thakibi</h1>
-    
-    <!-- The Record Button -->
-    <button id="record-btn" onclick="handleRecord()" 
-            class="w-32 h-32 rounded-full bg-[#B68D77] text-white font-medium hover:scale-105 transition-all">
-        Speak
-    </button>
-    
-    <p id="status-text" class="mt-6 text-sm uppercase tracking-widest">Ready to listen</p>
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("System Initialized.");
 
-    <script>
-        // 1. Connection Config
-        const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("System Initialized.");
+    let mediaRecorder;
+    let audioChunks = [];
+    let audioFormat = 'audio/webm'; // Default format
 
-        let mediaRecorder;
-        let audioChunks = [];
+    async function handleRecord() {
+        const btn = document.getElementById('record-btn');
+        const status = document.getElementById('status-text');
 
-        async function handleRecord() {
-            const btn = document.getElementById('record-btn');
-            const status = document.getElementById('status-text');
-
-            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-                // START RECORDING
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-                    mediaRecorder.onstop = uploadToDatabase;
-                    
-                    mediaRecorder.start();
-                    btn.innerText = "Recording...";
-                    btn.classList.replace('bg-[#B68D77]', 'bg-red-500');
-                    status.innerText = "Speak now...";
-                } catch (err) {
-                    alert("Microphone access denied. Please check your browser settings.");
+        if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // Check if device is Apple/Safari and adjust format
+                if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    audioFormat = 'audio/mp4';
                 }
-            } else {
-                // STOP RECORDING
-                mediaRecorder.stop();
-                btn.innerText = "Speak";
-                btn.classList.replace('bg-red-500', 'bg-[#B68D77]');
-                status.innerText = "Saving...";
+
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    // Turn off the microphone light on the browser/phone
+                    stream.getTracks().forEach(track => track.stop());
+                    uploadToDatabase();
+                };
+                
+                mediaRecorder.start();
+                btn.innerText = "Recording...";
+                btn.classList.replace('bg-[#B68D77]', 'bg-red-500');
+                status.innerText = "Speak now...";
+                
+            } catch (err) {
+                console.error("Mic error:", err);
+                alert("Microphone access denied or not supported on this browser.");
             }
+        } else {
+            // STOP RECORDING
+            mediaRecorder.stop();
+            btn.innerText = "Speak";
+            btn.classList.replace('bg-red-500', 'bg-[#B68D77]');
+            status.innerText = "Saving...";
         }
+    }
 
-        async function uploadToDatabase() {
-            const status = document.getElementById('status-text');
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-            const fileName = `note_${Date.now()}.webm`;
+    async function uploadToDatabase() {
+        const status = document.getElementById('status-text');
+        const audioBlob = new Blob(audioChunks, { type: audioFormat });
+        
+        // Use .mp4 extension if Apple, otherwise .webm
+        const extension = audioFormat.includes('mp4') ? 'mp4' : 'webm';
+        const fileName = `note_${Date.now()}.${extension}`;
 
-            const { data, error } = await supabase.storage
-                .from('voice-notes')
-                .upload(fileName, audioBlob);
+        const { data, error } = await supabase.storage
+            .from('voice-notes')
+            .upload(fileName, audioBlob);
 
-            if (error) {
-                console.error("Upload error:", error);
-                status.innerText = "Error saving. Check console.";
-            } else {
-                status.innerText = "Saved successfully!";
-                console.log("Success:", data);
-            }
+        if (error) {
+            console.error("Upload error:", error);
+            status.innerText = "Error saving. Check console.";
+        } else {
+            status.innerText = "Saved successfully!";
+            console.log("Success:", data);
         }
-    </script>
-</body>
-</html>
+    }
+</script>
