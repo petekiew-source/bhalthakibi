@@ -3,32 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bhal Thakibi!</title>
+    <title>Bhal Thakibi - Fresh Start</title>
+    <!-- Tailwind and Supabase -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root { --bg-warm: #F7F5F0; --accent-clay: #B68D77; }
-        body { background-color: var(--bg-warm); font-family: sans-serif; }
-    </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen">
-    <h1 class="text-3xl mb-4">Bhal Thakibi!</h1>
-    <button id="speak-btn" onclick="toggleRecording()" class="w-24 h-24 rounded-full bg-[#B68D77] text-white">
+<body class="bg-[#F7F5F0] text-[#2C2C2C] flex flex-col items-center justify-center min-h-screen">
+    
+    <h1 class="text-3xl font-serif mb-8">Bhal Thakibi</h1>
+    
+    <!-- The Record Button -->
+    <button id="record-btn" onclick="handleRecord()" 
+            class="w-32 h-32 rounded-full bg-[#B68D77] text-white font-medium hover:scale-105 transition-all">
         Speak
     </button>
-    <p id="status" class="mt-4">Ready</p>
+    
+    <p id="status-text" class="mt-6 text-sm uppercase tracking-widest">Ready to listen</p>
 
     <script>
-        console.log("Page loaded!");
+        // 1. Connection Config
         const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("Supabase connected!");
+        console.log("System Initialized.");
 
-        async function toggleRecording() {
-            alert("Button clicked! If you see this, the button is connected.");
-            console.log("Button clicked!");
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function handleRecord() {
+            const btn = document.getElementById('record-btn');
+            const status = document.getElementById('status-text');
+
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+                // START RECORDING
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+                    mediaRecorder.onstop = uploadToDatabase;
+                    
+                    mediaRecorder.start();
+                    btn.innerText = "Recording...";
+                    btn.classList.replace('bg-[#B68D77]', 'bg-red-500');
+                    status.innerText = "Speak now...";
+                } catch (err) {
+                    alert("Microphone access denied. Please check your browser settings.");
+                }
+            } else {
+                // STOP RECORDING
+                mediaRecorder.stop();
+                btn.innerText = "Speak";
+                btn.classList.replace('bg-red-500', 'bg-[#B68D77]');
+                status.innerText = "Saving...";
+            }
+        }
+
+        async function uploadToDatabase() {
+            const status = document.getElementById('status-text');
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const fileName = `note_${Date.now()}.webm`;
+
+            const { data, error } = await supabase.storage
+                .from('voice-notes')
+                .upload(fileName, audioBlob);
+
+            if (error) {
+                console.error("Upload error:", error);
+                status.innerText = "Error saving. Check console.";
+            } else {
+                status.innerText = "Saved successfully!";
+                console.log("Success:", data);
+            }
         }
     </script>
 </body>
