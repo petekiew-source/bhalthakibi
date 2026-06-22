@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bhal pra thakiwi</title>
-    <!-- We use Tailwind CSS for the beautiful styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- We bring in Supabase to handle the database and audio storage -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { background-color: #FDFBF7; color: #3A3532; font-family: ui-sans-serif, system-ui, sans-serif; }
@@ -15,18 +13,14 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center relative p-6">
 
-    <!-- SETUP: PUT YOUR SUPABASE KEYS HERE -->
     <script>
-        // 🚨 REPLACE THESE TWO LINES WITH YOUR ACTUAL SUPABASE KEYS 🚨
         const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
-        const SUPABASE_ANON_KEY = 'YeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // FIX: Renamed this to supabaseClient so it doesn't clash with the library!
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
 
-    <!-- ========================================== -->
-    <!-- 1. HOME SCREEN -->
-    <!-- ========================================== -->
     <div id="home-screen" class="text-center w-full max-w-2xl fade-in">
         <div class="space-y-4 mb-12">
             <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Bhal pra thakiwi</h1>
@@ -45,9 +39,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. RECORDING SCREEN -->
-    <!-- ========================================== -->
     <div id="record-screen" class="hidden flex-col items-center justify-center w-full max-w-md h-full">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide hover:opacity-60 transition-opacity">← Back</button>
         
@@ -62,9 +53,6 @@
         <p id="record-status" class="text-[#8A8582] font-light">Ready to record</p>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. LISTEN SCREEN -->
-    <!-- ========================================== -->
     <div id="listen-screen" class="hidden flex-col items-center justify-center w-full max-w-md h-full">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide hover:opacity-60 transition-opacity">← Back</button>
 
@@ -78,9 +66,6 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC -->
-    <!-- ========================================== -->
     <script>
         // --- Navigation ---
         function showScreen(screenId) {
@@ -146,7 +131,7 @@
             const fileName = Date.now() + '-' + Math.random().toString(36).substring(7) + '.webm';
 
             // Upload to Supabase Storage bucket named 'goodbyes'
-            const { data: uploadData, error: uploadError } = await supabase.storage
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
                 .from('goodbyes')
                 .upload(fileName, audioBlob);
 
@@ -156,8 +141,8 @@
             }
 
             // Get the URL and save to database table 'goodbyes'
-            const { data: urlData } = supabase.storage.from('goodbyes').getPublicUrl(fileName);
-            const { error: dbError } = await supabase.from('goodbyes').insert([{ audio_url: urlData.publicUrl }]);
+            const { data: urlData } = supabaseClient.storage.from('goodbyes').getPublicUrl(fileName);
+            const { error: dbError } = await supabaseClient.from('goodbyes').insert([{ audio_url: urlData.publicUrl }]);
 
             if (dbError) {
                 document.getElementById('record-status').innerText = "Error saving. Let me know.";
@@ -175,7 +160,7 @@
             const audioPlayer = document.getElementById('audio-player');
             audioPlayer.src = ""; // Clear current audio
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('goodbyes')
                 .select('id, audio_url')
                 .eq('is_approved', true);
