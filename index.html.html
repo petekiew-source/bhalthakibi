@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bhal Thakibi</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-warm: #F7F5F0;
-            --text-dark: #4A3F39;
+            --text-dark: #2C2C2C;      /* Darker, solid text color */
+            --text-muted: #5A5A5A;     /* Muted text color */
             --accent-clay: #B68D77;
             --accent-glow: #D9B39F;
         }
@@ -19,11 +20,10 @@
             color: var(--text-dark);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
-            overflow: hidden; /* Prevents scrolling to keep it grounded */
+            overflow: hidden; 
         }
         .font-serif { font-family: 'Lora', serif; }
         
-        /* Smooth transitions for changing screens */
         .fade-in { animation: fadeIn 0.8s ease-in forwards; }
         .fade-out { animation: fadeOut 0.5s ease-out forwards; }
         
@@ -36,7 +36,6 @@
             to { opacity: 0; transform: translateY(-10px); }
         }
 
-        /* The shrinking 60-second timeline */
         #timeline-container {
             width: 100%;
             height: 2px;
@@ -53,7 +52,6 @@
             transition: width 1s linear;
         }
 
-        /* Subtle ripple for listening mode */
         .ripple {
             border-radius: 50%;
             background: var(--accent-glow);
@@ -70,14 +68,14 @@
 
     <!-- VIEW 1: LANDING -->
     <main id="view-landing" class="text-center max-w-md w-full flex flex-col items-center fade-in">
-        <h1 class="font-serif text-3xl md:text-4xl tracking-wide text-[#4A3F39] mb-4">Bhal Thakibi</h1>
-        <p class="font-serif italic text-[#7A6B63] text-lg mb-16">Some words are too heavy to carry alone.<br>Leave them here.</p>
+        <h1 class="font-serif text-3xl md:text-4xl tracking-wide text-[var(--text-dark)] mb-4">Bhal Thakibi</h1>
+        <p class="font-serif text-[var(--text-muted)] text-lg mb-16">Some words are too heavy to carry alone.<br>Leave them here.</p>
         
         <div class="flex flex-col gap-6 w-full px-8">
-            <button onclick="switchView('view-speak')" class="py-4 border border-[#B68D77] text-[#B68D77] rounded-full tracking-widest uppercase text-xs font-medium hover:bg-[#B68D77] hover:text-[#F7F5F0] transition-colors duration-500">
+            <button onclick="switchView('view-speak')" class="py-4 border border-[var(--accent-clay)] text-[var(--accent-clay)] rounded-full tracking-widest uppercase text-xs font-medium hover:bg-[var(--accent-clay)] hover:text-[#F7F5F0] transition-colors duration-500">
                 Speak
             </button>
-            <button onclick="switchView('view-listen')" class="py-4 text-[#7A6B63] rounded-full tracking-widest uppercase text-xs font-medium hover:text-[#4A3F39] transition-colors duration-500">
+            <button onclick="switchView('view-listen')" class="py-4 text-[var(--text-muted)] rounded-full tracking-widest uppercase text-xs font-medium hover:text-[var(--text-dark)] transition-colors duration-500">
                 Listen
             </button>
         </div>
@@ -85,44 +83,46 @@
 
     <!-- VIEW 2: SPEAK (RECORDING) -->
     <main id="view-speak" class="hidden text-center max-w-md w-full flex-col items-center fade-in">
-        <p id="record-prompt" class="font-serif italic text-[#7A6B63] text-lg mb-16 h-12">
+        <p id="record-prompt" class="font-serif text-[var(--text-muted)] text-lg mb-16 h-12">
             Take a deep breath.<br>You have 60 seconds. No one knows who you are.
         </p>
 
         <!-- Record Button -->
-        <button id="record-btn" onclick="toggleRecording()" class="w-24 h-24 rounded-full bg-[#B68D77] shadow-[0_0_20px_rgba(182,141,119,0.3)] flex items-center justify-center transition-all duration-500 hover:scale-105 group relative">
+        <button id="record-btn" onclick="toggleRecording()" class="w-24 h-24 rounded-full bg-[var(--accent-clay)] shadow-[0_0_20px_rgba(182,141,119,0.3)] flex items-center justify-center transition-all duration-500 hover:scale-105 group relative">
             <div id="record-inner" class="w-8 h-8 bg-[#F7F5F0] rounded-full transition-all duration-300"></div>
         </button>
-        <p id="record-status" class="mt-8 text-xs tracking-widest uppercase text-[#B68D77] opacity-0 transition-opacity duration-500">Recording...</p>
+        <p id="record-status" class="mt-8 text-xs tracking-widest uppercase text-[var(--accent-clay)] opacity-0 transition-opacity duration-500">Recording...</p>
 
         <!-- Visual Shrinking Timer -->
         <div id="timeline-container" class="opacity-0 transition-opacity duration-500">
             <div id="timeline-bar"></div>
         </div>
 
-        <button onclick="cancelAction()" id="cancel-btn" class="mt-12 text-[#7A6B63] tracking-widest uppercase text-[10px] font-medium hover:text-[#4A3F39] transition-colors">Cancel</button>
+        <button onclick="cancelAction()" id="cancel-btn" class="mt-12 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] transition-colors">Cancel</button>
     </main>
 
     <!-- VIEW 3: SUCCESS (POST-RECORDING) -->
     <main id="view-success" class="hidden text-center max-w-md w-full flex-col items-center fade-in">
-        <p class="font-serif italic text-[#4A3F39] text-xl mb-12 leading-relaxed">
+        <p class="font-serif text-[var(--text-dark)] text-xl mb-12 leading-relaxed">
             Your words have been heard.<br>They are safe here.
         </p>
-        <button onclick="switchView('view-landing')" class="py-3 px-8 border border-[#B68D77] text-[#B68D77] rounded-full tracking-widest uppercase text-[10px] font-medium hover:bg-[#B68D77] hover:text-[#F7F5F0] transition-colors duration-500">
+        <button onclick="switchView('view-landing')" class="py-3 px-8 border border-[var(--accent-clay)] text-[var(--accent-clay)] rounded-full tracking-widest uppercase text-[10px] font-medium hover:bg-[var(--accent-clay)] hover:text-[#F7F5F0] transition-colors duration-500">
             Return
         </button>
     </main>
 
     <!-- VIEW 4: LISTEN -->
     <main id="view-listen" class="hidden text-center max-w-md w-full flex-col items-center justify-center h-full fade-in relative">
-        <div class="relative w-32 h-32 flex items-center justify-center mb-12">
-            <div class="absolute w-full h-full ripple"></div>
-            <div class="absolute w-20 h-20 rounded-full bg-[#D9B39F] opacity-50"></div>
-        </div>
-        <p class="font-serif italic text-[#7A6B63] text-lg mb-16">Listening to the void...</p>
-        <button onclick="switchView('view-landing')" class="absolute bottom-10 text-[#7A6B63] tracking-widest uppercase text-[10px] font-medium hover:text-[#4A3F39] transition-colors">
-            Leave quietly
+        <!-- New Back Button -->
+        <button onclick="leaveListenMode()" class="absolute top-0 left-0 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] transition-colors flex items-center gap-2">
+            ← Back
         </button>
+
+        <div class="relative w-32 h-32 flex items-center justify-center mb-12 mt-16">
+            <div class="absolute w-full h-full ripple"></div>
+            <div class="absolute w-20 h-20 rounded-full bg-[var(--accent-glow)] opacity-50"></div>
+        </div>
+        <p id="listen-status" class="font-serif text-[var(--text-muted)] text-lg mb-16">Listening to the void...</p>
     </main>
 
     <script>
@@ -131,6 +131,12 @@
         let isRecording = false;
         let recordingInterval;
         let timeLeft = 60;
+
+        // Audio Recording Variables
+        let mediaRecorder;
+        let audioChunks = [];
+        let latestAudioUrl = null;
+        let currentAudioPlayer = new Audio();
 
         function switchView(targetId) {
             views.forEach(id => {
@@ -143,11 +149,14 @@
                     el.classList.remove('flex');
                 }
             });
-            // Reset recording state if leaving the speak screen
-            if (targetId !== 'view-speak') resetRecordingUI();
+
+            // If entering Listen mode, play the audio
+            if (targetId === 'view-listen') {
+                startListeningMode();
+            }
         }
 
-        function toggleRecording() {
+        async function toggleRecording() {
             const innerBtn = document.getElementById('record-inner');
             const status = document.getElementById('record-status');
             const timeline = document.getElementById('timeline-container');
@@ -155,36 +164,57 @@
             const cancelBtn = document.getElementById('cancel-btn');
 
             if (!isRecording) {
-                // START RECORDING (Mock logic for now)
-                isRecording = true;
-                
-                // Animate button to a "Stop" square
-                innerBtn.classList.remove('rounded-full');
-                innerBtn.classList.add('rounded-sm', 'scale-75');
-                
-                // Show recording status and timeline
-                status.classList.remove('opacity-0');
-                status.classList.add('animate-pulse');
-                timeline.classList.remove('opacity-0');
-                prompt.style.opacity = '0';
-                cancelBtn.style.opacity = '0'; // Hide cancel so they focus on speaking
+                try {
+                    // Request Microphone Access
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
 
-                // Start Visual Timer
-                timeLeft = 60;
-                document.getElementById('timeline-bar').style.width = '100%';
-                
-                recordingInterval = setInterval(() => {
-                    timeLeft--;
-                    const percentage = (timeLeft / 60) * 100;
-                    document.getElementById('timeline-bar').style.width = percentage + '%';
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
 
-                    if (timeLeft <= 0) {
-                        finishRecording();
-                    }
-                }, 1000);
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        latestAudioUrl = URL.createObjectURL(audioBlob);
+                        
+                        // Stop all tracks to release the microphone
+                        stream.getTracks().forEach(track => track.stop());
+                        
+                        switchView('view-success');
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    
+                    // UI Changes for recording state
+                    innerBtn.classList.remove('rounded-full');
+                    innerBtn.classList.add('rounded-sm', 'scale-75');
+                    status.classList.remove('opacity-0');
+                    status.classList.add('animate-pulse');
+                    timeline.classList.remove('opacity-0');
+                    prompt.style.opacity = '0';
+                    cancelBtn.style.opacity = '0';
+
+                    // Timer Logic
+                    timeLeft = 60;
+                    document.getElementById('timeline-bar').style.width = '100%';
+                    
+                    recordingInterval = setInterval(() => {
+                        timeLeft--;
+                        const percentage = (timeLeft / 60) * 100;
+                        document.getElementById('timeline-bar').style.width = percentage + '%';
+
+                        if (timeLeft <= 0) {
+                            finishRecording();
+                        }
+                    }, 1000);
+
+                } catch (err) {
+                    alert("Microphone access is required to record a message.");
+                }
 
             } else {
-                // STOP RECORDING (Tapped before 60s)
                 finishRecording();
             }
         }
@@ -192,10 +222,9 @@
         function finishRecording() {
             clearInterval(recordingInterval);
             isRecording = false;
-            
-            // Here is where we will eventually upload to Supabase
-            // For now, we just transition to the success screen
-            switchView('view-success');
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
         }
 
         function resetRecordingUI() {
@@ -215,7 +244,33 @@
         }
 
         function cancelAction() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
             resetRecordingUI();
+            switchView('view-landing');
+        }
+
+        // Playback Logic
+        function startListeningMode() {
+            const statusText = document.getElementById('listen-status');
+            
+            if (latestAudioUrl) {
+                statusText.innerText = "Listening to a message...";
+                currentAudioPlayer.src = latestAudioUrl;
+                currentAudioPlayer.play();
+                
+                currentAudioPlayer.onended = () => {
+                    statusText.innerText = "The message has faded. You can go back.";
+                };
+            } else {
+                statusText.innerText = "The void is quiet. No recordings yet.";
+            }
+        }
+
+        function leaveListenMode() {
+            currentAudioPlayer.pause();
+            currentAudioPlayer.currentTime = 0;
             switchView('view-landing');
         }
     </script>
