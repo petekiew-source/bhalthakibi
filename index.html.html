@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --bg-warm: #F7F5F0;
@@ -31,10 +33,6 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(-10px); }
         }
 
         #timeline-container {
@@ -68,32 +66,18 @@
         .flower-container {
             position: absolute;
             z-index: 0;
-            pointer-events: auto; /* Allows hover */
+            pointer-events: auto; 
             cursor: pointer;
             transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
             filter: drop-shadow(0 10px 15px rgba(0,0,0,0.03));
         }
-        
-        /* The hover interaction */
-        .flower-container:hover {
-            transform: scale(1.08) rotate(10deg);
-        }
-
-        /* Mimics watercolor blending */
-        .watercolor-petal {
-            mix-blend-mode: multiply;
-        }
-
-        /* Protect main UI from being blocked by flowers */
-        main {
-            position: relative;
-            z-index: 10;
-        }
+        .flower-container:hover { transform: scale(1.08) rotate(10deg); }
+        .watercolor-petal { mix-blend-mode: multiply; }
+        main { position: relative; z-index: 10; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-6 relative">
 
-    <!-- WATERCOLOR FLOWER 1 (Top Left) -->
     <svg class="flower-container" style="top: -5%; left: -5%; width: 280px; height: 280px; opacity: 0.85;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <filter id="watercolor-effect">
@@ -103,11 +87,9 @@
             </filter>
         </defs>
         <g filter="url(#watercolor-effect)">
-            <!-- Layered abstract petals -->
             <path class="watercolor-petal" fill="#E8CFC0" d="M102,-80C125,-60,135,-30,138,4C141,38,137,76,114,94C91,112,45,110,6,106C-33,102,-66,96,-87,78C-108,60,-117,30,-115,-1C-113,-32,-100,-64,-79,-84C-58,-104,-29,-112,3,-115C35,-118,79,-100,102,-80Z" transform="translate(100 100) scale(0.7) rotate(15)" opacity="0.6"/>
             <path class="watercolor-petal" fill="#D9B39F" d="M85,-75C108,-55,123,-27,126,3C129,33,120,66,97,85C74,104,37,109,-1,110C-39,111,-78,108,-101,89C-124,70,-131,35,-128,5C-125,-25,-112,-50,-89,-70C-66,-90,-33,-105,-1,-104C31,-103,62,-95,85,-75Z" transform="translate(100 100) scale(0.6) rotate(60)" opacity="0.7"/>
             <path class="watercolor-petal" fill="#C4A493" d="M70,-60C90,-40,100,-20,105,5C110,30,110,60,90,75C70,90,35,90,5,88C-25,86,-50,82,-70,67C-90,52,-100,26,-98,5C-96,-16,-82,-32,-65,-50C-48,-68,-24,-88,1,-89C26,-90,50,-80,70,-60Z" transform="translate(100 100) scale(0.5) rotate(110)" opacity="0.8"/>
-            <!-- Center Stamen -->
             <circle cx="100" cy="100" r="8" fill="#8A6B58" opacity="0.9"/>
             <circle cx="104" cy="96" r="3" fill="#4A3F39" opacity="0.7"/>
             <circle cx="96" cy="104" r="2.5" fill="#4A3F39" opacity="0.6"/>
@@ -115,27 +97,23 @@
         </g>
     </svg>
 
-    <!-- WATERCOLOR FLOWER 2 (Bottom Right) -->
     <svg class="flower-container" style="bottom: -10%; right: -5%; width: 320px; height: 320px; opacity: 0.7;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <g filter="url(#watercolor-effect)">
-            <!-- Layered abstract petals in slightly muted/sage tones to balance the warm peach -->
             <path class="watercolor-petal" fill="#D3C5B8" d="M96,-91C121,-70,134,-35,137,3C141,42,136,85,112,105C87,125,43,122,4,118C-35,114,-70,108,-95,88C-119,69,-133,34,-130,2C-127,-29,-108,-58,-84,-78C-59,-99,-29,-111,2,-114C35,-117,70,-110,96,-91Z" transform="translate(100 100) scale(0.7) rotate(45)" opacity="0.6"/>
             <path class="watercolor-petal" fill="#B68D77" d="M84,-80C106,-60,118,-30,123,4C128,39,125,79,104,98C82,117,41,115,1,113C-38,112,-77,112,-99,93C-121,74,-127,37,-122,4C-117,-27,-101,-55,-79,-75C-57,-95,-28,-107,0,-108C30,-109,60,-98,84,-80Z" transform="translate(100 100) scale(0.6) rotate(120)" opacity="0.5"/>
             <path class="watercolor-petal" fill="#E8D1C3" d="M72,-68C92,-50,102,-25,107,5C112,35,112,70,92,88C72,106,36,108,4,105C-28,102,-56,94,-76,76C-96,58,-108,30,-106,2C-104,-26,-88,-52,-68,-70C-48,-88,-24,-98,2,-100C28,-102,52,-86,72,-68Z" transform="translate(100 100) scale(0.55) rotate(190)" opacity="0.7"/>
-            <!-- Center Stamen -->
             <circle cx="100" cy="100" r="9" fill="#7A6B63" opacity="0.8"/>
             <circle cx="95" cy="105" r="3" fill="#4A3F39" opacity="0.7"/>
             <circle cx="105" cy="95" r="2.5" fill="#4A3F39" opacity="0.6"/>
         </g>
     </svg>
 
-    <!-- VIEW 1: LANDING -->
     <main id="view-landing" class="text-center max-w-md w-full flex flex-col items-center fade-in">
         <h1 class="font-serif text-3xl md:text-4xl tracking-wide text-[var(--text-dark)] mb-4">Bhal Thakibi!</h1>
         <p class="font-serif text-[var(--text-muted)] text-lg mb-16">Some words are too heavy to carry alone.<br>Leave them here.</p>
         
         <div class="flex flex-col gap-6 w-full px-8">
-            <button onclick="switchView('view-speak')" class="py-4 border border-[var(--accent-clay)] text-[var(--accent-clay)] rounded-full tracking-widest uppercase text-xs font-medium hover:bg-[var(--accent-clay)] hover:text-[#F7F5F0] transition-colors duration-500">
+            <button onclick="switchView('view-speak')" class="py-4 border border-[var(--accent-clay)] text-[var(--accent-clay)] rounded-full tracking-widest uppercase text-xs font-medium hover:bg-[var(--accent-clay)] hover:text-[#F7F5F0] transition-colors duration-500 bg-white/30 backdrop-blur-sm">
                 Speak
             </button>
             <button onclick="switchView('view-listen')" class="py-4 text-[var(--text-muted)] rounded-full tracking-widest uppercase text-xs font-medium hover:text-[var(--text-dark)] transition-colors duration-500 bg-white/30 backdrop-blur-sm">
@@ -144,19 +122,16 @@
         </div>
     </main>
 
-    <!-- VIEW 2: SPEAK (RECORDING) -->
     <main id="view-speak" class="hidden text-center max-w-md w-full flex-col items-center fade-in bg-white/20 backdrop-blur-sm p-8 rounded-3xl">
         <p id="record-prompt" class="font-serif text-[var(--text-muted)] text-lg mb-16 h-12">
             Take a deep breath.<br>You have 60 seconds. No one knows who you are.
         </p>
 
-        <!-- Record Button -->
         <button id="record-btn" onclick="toggleRecording()" class="w-24 h-24 rounded-full bg-[var(--accent-clay)] shadow-[0_0_20px_rgba(182,141,119,0.3)] flex items-center justify-center transition-all duration-500 hover:scale-105 group relative">
             <div id="record-inner" class="w-8 h-8 bg-[#F7F5F0] rounded-full transition-all duration-300"></div>
         </button>
         <p id="record-status" class="mt-8 text-xs tracking-widest uppercase text-[var(--accent-clay)] opacity-0 transition-opacity duration-500">Recording...</p>
 
-        <!-- Visual Shrinking Timer -->
         <div id="timeline-container" class="opacity-0 transition-opacity duration-500">
             <div id="timeline-bar"></div>
         </div>
@@ -164,7 +139,6 @@
         <button onclick="cancelAction()" id="cancel-btn" class="mt-12 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] transition-colors">Cancel</button>
     </main>
 
-    <!-- VIEW 3: SUCCESS (POST-RECORDING) -->
     <main id="view-success" class="hidden text-center max-w-md w-full flex-col items-center fade-in bg-white/30 backdrop-blur-sm p-8 rounded-3xl">
         <p class="font-serif text-[var(--text-dark)] text-xl mb-12 leading-relaxed">
             Your words have been heard.<br>They are safe here.
@@ -174,9 +148,8 @@
         </button>
     </main>
 
-    <!-- VIEW 4: LISTEN -->
     <main id="view-listen" class="hidden text-center max-w-md w-full flex-col items-center justify-center h-full fade-in relative bg-white/20 backdrop-blur-sm p-8 rounded-3xl">
-        <button onclick="leaveListenMode()" class="absolute top-6 left-6 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] transition-colors flex items-center gap-2">
+        <button onclick="leaveListenMode()" class="absolute top-6 left-6 text-[var(--text-muted)] tracking-widest uppercase text-[10px] font-medium hover:text-[var(--text-dark)] transition-colors flex items-center gap-2 z-20">
             ← Back
         </button>
 
@@ -188,147 +161,18 @@
     </main>
 
     <script>
-        // UI Navigation Logic
+        // ==========================================
+        // ADD YOUR SUPABASE KEYS HERE
+        // ==========================================
+        const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ==========================================
+
         const views = ['view-landing', 'view-speak', 'view-success', 'view-listen'];
         let isRecording = false;
         let recordingInterval;
         let timeLeft = 60;
 
-        // Audio Recording Variables
-        let mediaRecorder;
-        let audioChunks = [];
-        let latestAudioUrl = null;
-        let currentAudioPlayer = new Audio();
-
-        function switchView(targetId) {
-            views.forEach(id => {
-                const el = document.getElementById(id);
-                if (id === targetId) {
-                    el.classList.remove('hidden');
-                    el.classList.add('flex');
-                } else {
-                    el.classList.add('hidden');
-                    el.classList.remove('flex');
-                }
-            });
-
-            if (targetId === 'view-listen') {
-                startListeningMode();
-            }
-        }
-
-        async function toggleRecording() {
-            const innerBtn = document.getElementById('record-inner');
-            const status = document.getElementById('record-status');
-            const timeline = document.getElementById('timeline-container');
-            const prompt = document.getElementById('record-prompt');
-            const cancelBtn = document.getElementById('cancel-btn');
-
-            if (!isRecording) {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-
-                    mediaRecorder.ondataavailable = event => {
-                        audioChunks.push(event.data);
-                    };
-
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        latestAudioUrl = URL.createObjectURL(audioBlob);
-                        
-                        stream.getTracks().forEach(track => track.stop());
-                        
-                        switchView('view-success');
-                    };
-
-                    mediaRecorder.start();
-                    isRecording = true;
-                    
-                    innerBtn.classList.remove('rounded-full');
-                    innerBtn.classList.add('rounded-sm', 'scale-75');
-                    status.classList.remove('opacity-0');
-                    status.classList.add('animate-pulse');
-                    timeline.classList.remove('opacity-0');
-                    prompt.style.opacity = '0';
-                    cancelBtn.style.opacity = '0';
-
-                    timeLeft = 60;
-                    document.getElementById('timeline-bar').style.width = '100%';
-                    
-                    recordingInterval = setInterval(() => {
-                        timeLeft--;
-                        const percentage = (timeLeft / 60) * 100;
-                        document.getElementById('timeline-bar').style.width = percentage + '%';
-
-                        if (timeLeft <= 0) {
-                            finishRecording();
-                        }
-                    }, 1000);
-
-                } catch (err) {
-                    alert("Microphone access is required to record a message.");
-                }
-
-            } else {
-                finishRecording();
-            }
-        }
-
-        function finishRecording() {
-            clearInterval(recordingInterval);
-            isRecording = false;
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-        }
-
-        function resetRecordingUI() {
-            clearInterval(recordingInterval);
-            isRecording = false;
-            
-            const innerBtn = document.getElementById('record-inner');
-            innerBtn.classList.add('rounded-full');
-            innerBtn.classList.remove('rounded-sm', 'scale-75');
-            
-            document.getElementById('record-status').classList.add('opacity-0');
-            document.getElementById('record-status').classList.remove('animate-pulse');
-            document.getElementById('timeline-container').classList.add('opacity-0');
-            document.getElementById('timeline-bar').style.width = '100%';
-            document.getElementById('record-prompt').style.opacity = '1';
-            document.getElementById('cancel-btn').style.opacity = '1';
-        }
-
-        function cancelAction() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            resetRecordingUI();
-            switchView('view-landing');
-        }
-
-        function startListeningMode() {
-            const statusText = document.getElementById('listen-status');
-            
-            if (latestAudioUrl) {
-                statusText.innerText = "Listening to a message...";
-                currentAudioPlayer.src = latestAudioUrl;
-                currentAudioPlayer.play();
-                
-                currentAudioPlayer.onended = () => {
-                    statusText.innerText = "The message has faded. You can go back.";
-                };
-            } else {
-                statusText.innerText = "The void is quiet. No recordings yet.";
-            }
-        }
-
-        function leaveListenMode() {
-            currentAudioPlayer.pause();
-            currentAudioPlayer.currentTime = 0;
-            switchView('view-landing');
-        }
-    </script>
-</body>
-</html>
+        let media
