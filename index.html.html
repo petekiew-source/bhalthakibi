@@ -10,16 +10,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #3bdce2; color: #FFFFFF; font-family: ui-sans-serif, system-ui, sans-serif; overflow: hidden; }
+        body { background-color: #3bdce2; color: #FFFFFF; font-family: ui-sans-serif, system-ui, sans-serif; }
         .hidden { display: none !important; }
         .title-font { font-family: 'Montserrat', sans-serif; font-weight: 900; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center relative p-6 select-none">
+<body class="min-h-screen flex flex-col items-center justify-center relative p-6">
 
-    <canvas id="water-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
-
-    <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center -mt-16 z-10 relative">
+    <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center -mt-16">
         
         <div class="space-y-4 mb-8 w-full overflow-hidden">
             <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
@@ -27,24 +25,24 @@
         </div>
         
         <div class="flex flex-col sm:flex-row gap-6 justify-center items-center w-full sm:w-auto">
-            <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg bg-[#3bdce2]/20 backdrop-blur-sm">
+            <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg">
                 Say your goodbye
             </button>
-            <button onclick="showScreen('listen-screen'); fetchRandomGoodbye();" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg bg-[#3bdce2]/20 backdrop-blur-sm">
+            <button onclick="showScreen('listen-screen'); fetchRandomGoodbye();" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg">
                 Hear a stranger's goodbye
             </button>
         </div>
         
         <p class="text-base md:text-lg text-white font-normal tracking-wide mt-8">Anonymous. No account. No data. Just your voice.</p>
         
-        <div class="absolute bottom-8 left-6 right-6 text-center z-10">
+        <div class="absolute bottom-8 left-6 right-6 text-center">
             <p class="text-xs sm:text-sm text-white italic font-light tracking-wide opacity-95">
                 In loving memory of my dearest sister Liethonuo "Sunny" Kiewhuo 1992-2026
             </p>
         </div>
     </div>
 
-    <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full -mt-16 z-10 relative">
+    <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full -mt-16">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
         
         <h2 class="text-3xl md:text-4xl font-normal tracking-wide mb-12 text-white">Say your goodbye</h2>
@@ -61,7 +59,7 @@
         <p id="record-status" class="text-xl md:text-2xl text-white font-normal text-center px-4 leading-relaxed">Press the white circle to speak your heart</p>
     </div>
 
-    <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full -mt-16 z-10 relative">
+    <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full -mt-16">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
 
         <p id="listen-status" class="text-2xl md:text-3xl text-white font-normal tracking-wide mb-12 text-center">Finding a voice...</p>
@@ -85,71 +83,6 @@
         } catch (error) {
             console.error("Supabase failed to initialize:", error);
         }
-
-        // --- Live Water Ripple Simulation Animation Logic ---
-        const canvas = document.getElementById('water-canvas');
-        const ctx = canvas.getContext('2d');
-        let ripples = [];
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
-        // Spawns a ripple fluid node when cursor drifts over the viewport canvas
-        let lastX = 0, lastY = 0;
-        window.addEventListener('mousemove', (e) => {
-            const distance = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-            // Throttles creation spacing slightly for fluid visual grace
-            if (distance > 18) { 
-                ripples.push({
-                    x: e.clientX,
-                    y: e.clientY,
-                    radius: 1,
-                    maxRadius: window.innerWidth > 768 ? 130 : 85,
-                    opacity: 0.35,
-                    speed: 1.4
-                });
-                lastX = e.clientX;
-                lastY = e.clientY;
-            }
-        });
-
-        function animateWater() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            for (let i = ripples.length - 1; i >= 0; i--) {
-                let r = ripples[i];
-                r.radius += r.speed;
-                // Elegant mathematical linear wave dissipation matching fluid cycles
-                r.opacity = 0.35 * (1 - r.radius / r.maxRadius);
-                
-                if (r.opacity <= 0) {
-                    ripples.splice(i, 1);
-                    continue;
-                }
-                
-                // Primary expanding surface ripple crest
-                ctx.beginPath();
-                ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(255, 255, 255, ${r.opacity})`;
-                ctx.lineWidth = 2.5;
-                ctx.stroke();
-
-                // Secondary trailing soft valley echo ring for organic depth realism
-                if (r.radius > 18) {
-                    ctx.beginPath();
-                    ctx.arc(r.x, r.y, r.radius - 18, 0, Math.PI * 2);
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${r.opacity * 0.45})`;
-                    ctx.lineWidth = 1.2;
-                    ctx.stroke();
-                }
-            }
-            requestAnimationFrame(animateWater);
-        }
-        animateWater();
 
         // --- Navigation ---
         function showScreen(screenId) {
