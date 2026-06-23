@@ -17,13 +17,6 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center relative p-6">
 
-    <script>
-        const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
-        
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    </script>
-
     <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center">
         <div class="space-y-4 mb-12 w-full overflow-hidden">
             <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
@@ -73,13 +66,23 @@
     </div>
 
     <script>
+        // --- Supabase Initialization ---
+        const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
+        
+        let supabaseClient;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (error) {
+            console.error("Supabase failed to initialize:", error);
+        }
+
         // --- Navigation ---
         function showScreen(screenId) {
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('record-screen').classList.add('hidden');
             document.getElementById('listen-screen').classList.add('hidden');
             
-            // Clean up states when going between screens
             if(screenId === 'record-screen') {
                 document.getElementById('record-status').innerText = "Press the white circle to speak your heart";
                 document.getElementById('progress-container').classList.add('opacity-0');
@@ -111,14 +114,12 @@
                 document.getElementById('stop-btn').classList.remove('hidden');
                 document.getElementById('record-status').innerText = "Recording...";
                 
-                // Show the progress bar line smoothly and make sure it starts completely full
                 timeLeft = 90;
                 document.getElementById('progress-bar').style.width = '100%';
                 document.getElementById('progress-container').classList.remove('opacity-0');
                 
                 mediaRecorder.start();
 
-                // Handles shrinking the line over 90 seconds
                 timerInterval = setInterval(() => {
                     timeLeft--;
                     const percentage = (timeLeft / 90) * 100;
@@ -149,4 +150,63 @@
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             const fileName = Date.now() + '-' + Math.random().toString(36).substring(7) + '.webm';
 
-            const { data: uploadData,
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                .from('goodbyes')
+                .upload(fileName, audioBlob);
+
+            if (uploadError) {
+                document.getElementById('record-status').innerText = "Upload failed. Please try again.";
+                return;
+            }
+
+            const { data: urlData } = supabaseClient.storage.from('goodbyes').getPublicUrl(fileName);
+            const { error: dbError } = await supabaseClient.from('goodbyes').insert([{ audio_url: urlData.publicUrl }]);
+
+            if (dbError) {
+                document.getElementById('record-status').innerText = "Error saving. Let me know.";
+            } else {
+                document.getElementById('record-status').innerText = "Your goodbye has been released into the world.";
+            }
+        }
+
+        // --- Listening Logic ---
+        async function fetchRandomGoodbye() {
+            document.getElementById('listen-status').innerText = "Finding a voice...";
+            document.getElementById('audio-player-container').classList.add('hidden');
+            
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.src = ""; 
+
+            const { data, error } = await supabaseClient
+                .from('goodbyes')
+                .select('id, audio_url')
+                .eq('is_approved', true);
+
+            if (error || !data || data.length === 0) {
+                document.getElementById('listen-status').innerText = "It is quiet right now. No goodbyes found.";
+                return;
+            }
+
+            let playedIds = JSON.parse(sessionStorage.getItem('playedGoodbyes') || '[]');
+            const unheardMessages = data.filter(msg => !playedIds.includes(msg.id));
+
+            if (unheardMessages.length === 0) {
+                document.getElementById('listen-status').innerText = "You have heard all the goodbyes for now. Rest well.";
+                return;
+            }
+
+            const randomMsg = unheardMessages[Math.floor(Math.random() * unheardMessages.length)];
+            playedIds.push(randomMsg.id);
+            sessionStorage.setItem('playedGoodbyes', JSON.stringify(playedIds));
+
+            audioPlayer.src = randomMsg.audio_url;
+            document.getElementById('listen-status').innerText = "Listening to a stranger...";
+            document.getElementById('audio-player-container').classList.remove('hidden');
+            
+            audioPlayer.onended = () => {
+                document.getElementById('listen-status').innerText = "The message has ended.";
+            };
+        }
+    </script>
+</body>
+</html>
