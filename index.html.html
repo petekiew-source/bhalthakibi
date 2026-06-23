@@ -17,11 +17,13 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center relative p-6">
 
-    <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center">
-        <div class="space-y-4 mb-12 w-full overflow-hidden">
+    <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center -mt-16">
+        
+        <div class="space-y-4 mb-8 w-full overflow-hidden">
             <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
             <p class="text-xl md:text-2xl text-white font-medium tracking-wide">A place to say goodbye</p>
         </div>
+        
         <div class="flex flex-col sm:flex-row gap-6 justify-center items-center w-full sm:w-auto">
             <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg">
                 Say your goodbye
@@ -31,15 +33,16 @@
             </button>
         </div>
         
-        <div class="absolute bottom-8 left-6 right-6 space-y-4 text-center">
-            <p class="text-base md:text-lg text-white font-normal tracking-wide">Anonymous. No account. No data. Just your voice.</p>
+        <p class="text-base md:text-lg text-white font-normal tracking-wide mt-8">Anonymous. No account. No data. Just your voice.</p>
+        
+        <div class="absolute bottom-8 left-6 right-6 text-center">
             <p class="text-xs sm:text-sm text-white italic font-light tracking-wide opacity-95">
                 In loving memory of my dearest sister Liethonuo "Sunny" Kiewhuo 1992-2026
             </p>
         </div>
     </div>
 
-    <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
+    <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full -mt-16">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
         
         <h2 class="text-3xl md:text-4xl font-normal tracking-wide mb-12 text-white">Say your goodbye</h2>
@@ -56,7 +59,7 @@
         <p id="record-status" class="text-xl md:text-2xl text-white font-normal text-center px-4 leading-relaxed">Press the white circle to speak your heart</p>
     </div>
 
-    <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
+    <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full -mt-16">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
 
         <p id="listen-status" class="text-2xl md:text-3xl text-white font-normal tracking-wide mb-12 text-center">Finding a voice...</p>
