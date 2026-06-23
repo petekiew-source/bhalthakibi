@@ -30,9 +30,10 @@
                 Hear a stranger's goodbye
             </button>
         </div>
-        <div class="mt-20 space-y-4">
+        
+        <div class="absolute bottom-8 left-6 right-6 space-y-4 text-center">
             <p class="text-base md:text-lg text-white font-normal tracking-wide">Anonymous. No account. No data. Just your voice.</p>
-            <p class="text-xs sm:text-sm text-white italic font-light tracking-wide pt-2 opacity-95">
+            <p class="text-xs sm:text-sm text-white italic font-light tracking-wide opacity-95">
                 In loving memory of my dearest sister Liethonuo "Sunny" Kiewhuo 1992-2026
             </p>
         </div>
@@ -55,4 +56,161 @@
         <p id="record-status" class="text-xl md:text-2xl text-white font-normal text-center px-4 leading-relaxed">Press the white circle to speak your heart</p>
     </div>
 
-    <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-
+    <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
+        <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
+
+        <p id="listen-status" class="text-2xl md:text-3xl text-white font-normal tracking-wide mb-12 text-center">Finding a voice...</p>
+
+        <div id="audio-player-container" class="hidden flex flex-col items-center w-full space-y-12">
+            <audio id="audio-player" controls autoplay class="w-full"></audio>
+            <button onclick="fetchRandomGoodbye()" class="px-8 py-3 text-base border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium">
+                Hear another
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Supabase Initialization ---
+        const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
+        
+        let supabaseClient;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (error) {
+            console.error("Supabase failed to initialize:", error);
+        }
+
+        // --- Navigation ---
+        function showScreen(screenId) {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('record-screen').classList.add('hidden');
+            document.getElementById('listen-screen').classList.add('hidden');
+            
+            if(screenId === 'record-screen') {
+                document.getElementById('record-status').innerText = "Press the white circle to speak your heart";
+                document.getElementById('progress-container').classList.add('opacity-0');
+                document.getElementById('progress-bar').style.width = '100%';
+            }
+            
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // --- Recording Logic ---
+        let mediaRecorder;
+        let audioChunks = [];
+        let timerInterval;
+        let timeLeft = 90;
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = handleUpload;
+                
+                document.getElementById('start-btn').classList.add('hidden');
+                document.getElementById('stop-btn').classList.remove('hidden');
+                document.getElementById('record-status').innerText = "Recording...";
+                
+                timeLeft = 90;
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('progress-container').classList.remove('opacity-0');
+                
+                mediaRecorder.start();
+
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    const percentage = (timeLeft / 90) * 100;
+                    document.getElementById('progress-bar').style.width = percentage + '%';
+                    
+                    if (timeLeft <= 0) stopRecording();
+                }, 1000);
+
+            } catch (err) {
+                document.getElementById('record-status').innerText = "Microphone access denied.";
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                clearInterval(timerInterval);
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                
+                document.getElementById('stop-btn').classList.add('hidden');
+                document.getElementById('start-btn').classList.remove('hidden');
+                document.getElementById('record-status').innerText = "Uploading your goodbye...";
+                document.getElementById('progress-container').classList.add('opacity-0');
+            }
+        }
+
+        async function handleUpload() {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const fileName = Date.now() + '-' + Math.random().toString(36).substring(7) + '.webm';
+
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                .from('goodbyes')
+                .upload(fileName, audioBlob);
+
+            if (uploadError) {
+                document.getElementById('record-status').innerText = "Upload failed. Please try again.";
+                return;
+            }
+
+            const { data: urlData } = supabaseClient.storage.from('goodbyes').getPublicUrl(fileName);
+            const { error: dbError } = await supabaseClient.from('goodbyes').insert([{ audio_url: urlData.publicUrl }]);
+
+            if (dbError) {
+                document.getElementById('record-status').innerText = "Error saving. Let me know.";
+            } else {
+                document.getElementById('record-status').innerText = "Your goodbye has been released into the world.";
+            }
+        }
+
+        // --- Listening Logic ---
+        async function fetchRandomGoodbye() {
+            document.getElementById('listen-status').innerText = "Finding a voice...";
+            document.getElementById('audio-player-container').classList.add('hidden');
+            
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.src = ""; 
+
+            const { data, error } = await supabaseClient
+                .from('goodbyes')
+                .select('id, audio_url')
+                .eq('is_approved', true);
+
+            if (error || !data || data.length === 0) {
+                document.getElementById('listen-status').innerText = "It is quiet right now. No goodbyes found.";
+                return;
+            }
+
+            let playedIds = JSON.parse(sessionStorage.getItem('playedGoodbyes') || '[]');
+            const unheardMessages = data.filter(msg => !playedIds.includes(msg.id));
+
+            if (unheardMessages.length === 0) {
+                document.getElementById('listen-status').innerText = "You have heard all the goodbyes for now. Rest well.";
+                return;
+            }
+
+            const randomMsg = unheardMessages[Math.floor(Math.random() * unheardMessages.length)];
+            playedIds.push(randomMsg.id);
+            sessionStorage.setItem('playedGoodbyes', JSON.stringify(playedIds));
+
+            audioPlayer.src = randomMsg.audio_url;
+            document.getElementById('listen-status').innerText = "Listening to a stranger...";
+            document.getElementById('audio-player-container').classList.remove('hidden');
+            
+            audioPlayer.onended = () => {
+                document.getElementById('listen-status').innerText = "The message has ended.";
+            };
+        }
+    </script>
+</body>
+</html>
