@@ -91,7 +91,7 @@
             console.error("Supabase failed to initialize:", error);
         }
 
-        // --- Live Water Ripple Simulation Logic ---
+        // --- Live Organic Water Ripple Physics Logic ---
         const waterCanvas = document.getElementById('water-canvas');
         const waterCtx = waterCanvas.getContext('2d');
         let ripples = [];
@@ -106,14 +106,23 @@
         let lastX = 0, lastY = 0;
         window.addEventListener('mousemove', (e) => {
             const distance = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-            if (distance > 18) { 
+            
+            // Increased movement distance spacing for an open, clean pond feeling
+            if (distance > 24) { 
+                // Math.random() introduces chaotic nature profiles to every wave generation
+                const randomMax = (window.innerWidth > 768 ? 90 : 65) + Math.random() * 60;
+                const randomSpeed = 0.45 + Math.random() * 0.4; // Halved baseline speed for a peaceful flow
+                const randomOpacity = 0.22 + Math.random() * 0.12; 
+
                 ripples.push({
                     x: e.clientX,
                     y: e.clientY,
                     radius: 1,
-                    maxRadius: window.innerWidth > 768 ? 130 : 85,
-                    opacity: 0.35,
-                    speed: 1.4
+                    maxRadius: randomMax,
+                    baseOpacity: randomOpacity,
+                    opacity: randomOpacity,
+                    speed: randomSpeed,
+                    lineWidth: 1.2 + Math.random() * 1.5 // Custom varied profile thickness
                 });
                 lastX = e.clientX;
                 lastY = e.clientY;
@@ -125,24 +134,26 @@
             for (let i = ripples.length - 1; i >= 0; i--) {
                 let r = ripples[i];
                 r.radius += r.speed;
-                r.opacity = 0.35 * (1 - r.radius / r.maxRadius);
+                r.opacity = r.baseOpacity * (1 - r.radius / r.maxRadius);
                 
                 if (r.opacity <= 0) {
                     ripples.splice(i, 1);
                     continue;
                 }
                 
+                // Primary surface crest line
                 waterCtx.beginPath();
                 waterCtx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
                 waterCtx.strokeStyle = `rgba(255, 255, 255, ${r.opacity})`;
-                waterCtx.lineWidth = 2.5;
+                waterCtx.lineWidth = r.lineWidth;
                 waterCtx.stroke();
 
-                if (r.radius > 18) {
+                // Echo trailing secondary ring for depth reflection
+                if (r.radius > 22) {
                     waterCtx.beginPath();
-                    waterCtx.arc(r.x, r.y, r.radius - 18, 0, Math.PI * 2);
-                    waterCtx.strokeStyle = `rgba(255, 255, 255, ${r.opacity * 0.45})`;
-                    waterCtx.lineWidth = 1.2;
+                    waterCtx.arc(r.x, r.y, r.radius - 22, 0, Math.PI * 2);
+                    waterCtx.strokeStyle = `rgba(255, 255, 255, ${r.opacity * 0.35})`;
+                    waterCtx.lineWidth = r.lineWidth * 0.5;
                     waterCtx.stroke();
                 }
             }
@@ -223,7 +234,6 @@
             document.getElementById('record-screen').classList.add('hidden');
             document.getElementById('listen-screen').classList.add('hidden');
             
-            // Show dedication footer ONLY on the home screen to maximize UI space on subpages
             if (screenId === 'home-screen') {
                 document.getElementById('site-footer').classList.remove('hidden');
                 const audioPlayer = document.getElementById('audio-player');
