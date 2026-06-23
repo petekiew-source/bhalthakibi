@@ -20,46 +20,46 @@
     <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center">
         <div class="space-y-4 mb-12 w-full overflow-hidden">
             <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
-            <p class="text-xl text-white/90 font-light">A place to say goodbye</p>
+            <p class="text-xl md:text-2xl text-white font-medium tracking-wide">A place to say goodbye</p>
         </div>
         <div class="flex flex-col sm:flex-row gap-6 justify-center items-center w-full sm:w-auto">
-            <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium">
+            <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg">
                 Say your goodbye
             </button>
-            <button onclick="showScreen('listen-screen'); fetchRandomGoodbye();" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium">
+            <button onclick="showScreen('listen-screen'); fetchRandomGoodbye();" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg">
                 Hear a stranger's goodbye
             </button>
         </div>
         <div class="mt-24">
-            <p class="text-sm text-white/80 tracking-wide">Anonymous. No account. No data. Just your voice.</p>
+            <p class="text-base md:text-lg text-white font-normal tracking-wide">Anonymous. No account. No data. Just your voice.</p>
         </div>
     </div>
 
     <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
-        <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
+        <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
         
-        <h2 class="text-2xl font-light tracking-wide mb-8 text-white">Say your goodbye</h2>
+        <h2 class="text-3xl md:text-4xl font-normal tracking-wide mb-12 text-white">Say your goodbye</h2>
         
-        <div id="progress-container" class="w-64 h-0.5 bg-white/20 rounded-full mb-12 opacity-0 transition-opacity duration-300">
+        <div id="progress-container" class="w-64 h-0.5 bg-white/25 rounded-full mb-12 opacity-0 transition-opacity duration-300">
             <div id="progress-bar" class="h-full bg-white w-full transition-all duration-1000 ease-linear rounded-full"></div>
         </div>
         
-        <div class="h-32 flex items-center justify-center mb-8">
+        <div class="h-32 flex items-center justify-center mb-12">
             <button id="start-btn" onclick="startRecording()" class="w-20 h-20 bg-white rounded-full hover:scale-105 transition-transform shadow-md" aria-label="Start recording"></button>
             <button id="stop-btn" onclick="stopRecording()" class="hidden w-16 h-16 bg-white rounded-md animate-pulse shadow-md" aria-label="Stop recording"></button>
         </div>
         
-        <p id="record-status" class="text-white/80 font-light text-center px-4">Press the white circle to speak your heart</p>
+        <p id="record-status" class="text-xl md:text-2xl text-white font-normal text-center px-4 leading-relaxed">Press the white circle to speak your heart</p>
     </div>
 
     <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
-        <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
+        <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
 
-        <p id="listen-status" class="text-xl text-white/90 font-light tracking-wide mb-12">Finding a voice...</p>
+        <p id="listen-status" class="text-2xl md:text-3xl text-white font-normal tracking-wide mb-12 text-center">Finding a voice...</p>
 
         <div id="audio-player-container" class="hidden flex flex-col items-center w-full space-y-12">
             <audio id="audio-player" controls autoplay class="w-full"></audio>
-            <button onclick="fetchRandomGoodbye()" class="px-6 py-2 text-sm border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white">
+            <button onclick="fetchRandomGoodbye()" class="px-8 py-3 text-base border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium">
                 Hear another
             </button>
         </div>
