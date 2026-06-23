@@ -343,8 +343,9 @@
                 .select('id, audio_url')
                 .eq('is_approved', true);
 
+            // --- Updated Soft Invitation for Empty Database State ---
             if (error || !data || data.length === 0) {
-                document.getElementById('listen-status').innerText = "It is quiet right now. No goodbyes found.";
+                document.getElementById('listen-status').innerText = "The line is completely quiet right now. There are no messages waiting—perhaps you will be the first to speak your heart?";
                 return;
             }
 
@@ -352,7 +353,6 @@
             const unheardMessages = data.filter(msg => !playedIds.includes(msg.id));
 
             if (unheardMessages.length === 0) {
-                // Incorporating your beautiful chosen phrase right here
                 document.getElementById('listen-status').innerText = "Every goodbye has found a home in your listening. Thank you for holding space for these voices.";
                 return;
             }
