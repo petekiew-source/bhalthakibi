@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BHAL PRA THAKIBI DEH!</title>
+    <!-- We use Tailwind CSS for the beautiful styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- We bring in Supabase to handle the database and audio storage -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Importing the Montserrat font for that striking, clean art-gallery title look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
@@ -17,6 +20,7 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center relative p-6">
 
+    <!-- SETUP: YOUR SUPABASE KEYS -->
     <script>
         const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
@@ -24,9 +28,13 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
 
-    <div id="home-screen" class="text-center w-full max-w-2xl flex flex-col items-center justify-center">
-        <div class="space-y-4 mb-12">
-            <h1 class="text-4xl md:text-6xl tracking-wide uppercase text-white title-font leading-none">BHAL PRA THAKIBI DEH!</h1>
+    <!-- ========================================== -->
+    <!-- 1. HOME SCREEN -->
+    <!-- ========================================== -->
+    <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center">
+        <div class="space-y-4 mb-12 w-full overflow-hidden">
+            <!-- tracking-tight pulls the letters closer, whitespace-nowrap prevents it from breaking into two lines -->
+            <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
             <p class="text-xl text-white/90 font-light">A place to say goodbye</p>
         </div>
         <div class="flex flex-col sm:flex-row gap-6 justify-center items-center w-full sm:w-auto">
@@ -42,6 +50,9 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- 2. RECORDING SCREEN -->
+    <!-- ========================================== -->
     <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
         
@@ -56,6 +67,9 @@
         <p id="record-status" class="text-white/80 font-light">Ready to record</p>
     </div>
 
+    <!-- ========================================== -->
+    <!-- 3. LISTEN SCREEN -->
+    <!-- ========================================== -->
     <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
 
@@ -69,6 +83,9 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ========================================== -->
     <script>
         // --- Navigation Fix ---
         function showScreen(screenId) {
