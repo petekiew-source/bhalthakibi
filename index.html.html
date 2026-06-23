@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BHAL PRA THAKIBI DEH!</title>
-    <!-- We use Tailwind CSS for the beautiful styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- We bring in Supabase to handle the database and audio storage -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Importing the Montserrat font for that striking, clean art-gallery title look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
@@ -20,7 +17,6 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center relative p-6">
 
-    <!-- SETUP: YOUR SUPABASE KEYS -->
     <script>
         const SUPABASE_URL = 'https://fyuxvsrcvuheeryrncfc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5dXh2c3JjdnVoZWVyeXJuY2ZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMTU1MDMsImV4cCI6MjA5NzY5MTUwM30.eSvp9Wi-IbgrQ6WhziyQlcg3OjZ6ikua8gWmIlnIuIA';
@@ -28,12 +24,8 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
 
-    <!-- ========================================== -->
-    <!-- 1. HOME SCREEN -->
-    <!-- ========================================== -->
     <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center">
         <div class="space-y-4 mb-12 w-full overflow-hidden">
-            <!-- tracking-tight pulls the letters closer, whitespace-nowrap prevents it from breaking into two lines -->
             <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
             <p class="text-xl text-white/90 font-light">A place to say goodbye</p>
         </div>
@@ -50,26 +42,23 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 2. RECORDING SCREEN -->
-    <!-- ========================================== -->
     <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
         
         <h2 class="text-2xl font-light tracking-wide mb-8 text-white">Say your goodbye</h2>
-        <div id="timer-display" class="text-6xl font-extralight tracking-tighter mb-12 text-white">90s</div>
+        
+        <div id="progress-container" class="w-64 h-0.5 bg-white/20 rounded-full mb-12 opacity-0 transition-opacity duration-300">
+            <div id="progress-bar" class="h-full bg-white w-full transition-all duration-1000 ease-linear rounded-full"></div>
+        </div>
         
         <div class="h-32 flex items-center justify-center mb-8">
             <button id="start-btn" onclick="startRecording()" class="w-20 h-20 bg-white rounded-full hover:scale-105 transition-transform shadow-md" aria-label="Start recording"></button>
             <button id="stop-btn" onclick="stopRecording()" class="hidden w-16 h-16 bg-white rounded-md animate-pulse shadow-md" aria-label="Stop recording"></button>
         </div>
         
-        <p id="record-status" class="text-white/80 font-light">Ready to record</p>
+        <p id="record-status" class="text-white/80 font-light text-center px-4">Press the white circle to speak your heart</p>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. LISTEN SCREEN -->
-    <!-- ========================================== -->
     <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full">
         <button onclick="showScreen('home-screen')" class="absolute top-8 left-8 text-sm tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
 
@@ -83,15 +72,19 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC -->
-    <!-- ========================================== -->
     <script>
-        // --- Navigation Fix ---
+        // --- Navigation ---
         function showScreen(screenId) {
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('record-screen').classList.add('hidden');
             document.getElementById('listen-screen').classList.add('hidden');
+            
+            // Clean up states when going between screens
+            if(screenId === 'record-screen') {
+                document.getElementById('record-status').innerText = "Press the white circle to speak your heart";
+                document.getElementById('progress-container').classList.add('opacity-0');
+                document.getElementById('progress-bar').style.width = '100%';
+            }
             
             document.getElementById(screenId).classList.remove('hidden');
         }
@@ -118,14 +111,19 @@
                 document.getElementById('stop-btn').classList.remove('hidden');
                 document.getElementById('record-status').innerText = "Recording...";
                 
+                // Show the progress bar line smoothly and make sure it starts completely full
                 timeLeft = 90;
-                document.getElementById('timer-display').innerText = timeLeft + 's';
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('progress-container').classList.remove('opacity-0');
                 
                 mediaRecorder.start();
 
+                // Handles shrinking the line over 90 seconds
                 timerInterval = setInterval(() => {
                     timeLeft--;
-                    document.getElementById('timer-display').innerText = timeLeft + 's';
+                    const percentage = (timeLeft / 90) * 100;
+                    document.getElementById('progress-bar').style.width = percentage + '%';
+                    
                     if (timeLeft <= 0) stopRecording();
                 }, 1000);
 
@@ -143,6 +141,7 @@
                 document.getElementById('stop-btn').classList.add('hidden');
                 document.getElementById('start-btn').classList.remove('hidden');
                 document.getElementById('record-status').innerText = "Uploading your goodbye...";
+                document.getElementById('progress-container').classList.add('opacity-0');
             }
         }
 
@@ -150,67 +149,4 @@
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             const fileName = Date.now() + '-' + Math.random().toString(36).substring(7) + '.webm';
 
-            // Upload to Supabase Storage bucket named 'goodbyes'
-            const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                .from('goodbyes')
-                .upload(fileName, audioBlob);
-
-            if (uploadError) {
-                document.getElementById('record-status').innerText = "Upload failed. Please try again.";
-                return;
-            }
-
-            // Get the URL and save to database table 'goodbyes'
-            const { data: urlData } = supabaseClient.storage.from('goodbyes').getPublicUrl(fileName);
-            const { error: dbError } = await supabaseClient.from('goodbyes').insert([{ audio_url: urlData.publicUrl }]);
-
-            if (dbError) {
-                document.getElementById('record-status').innerText = "Error saving. Let me know.";
-            } else {
-                document.getElementById('record-status').innerText = "Your goodbye has been released into the world.";
-                document.getElementById('timer-display').innerText = "90s";
-            }
-        }
-
-        // --- Listening Logic ---
-        async function fetchRandomGoodbye() {
-            document.getElementById('listen-status').innerText = "Finding a voice...";
-            document.getElementById('audio-player-container').classList.add('hidden');
-            
-            const audioPlayer = document.getElementById('audio-player');
-            audioPlayer.src = ""; // Clear current audio
-
-            const { data, error } = await supabaseClient
-                .from('goodbyes')
-                .select('id, audio_url')
-                .eq('is_approved', true);
-
-            if (error || !data || data.length === 0) {
-                document.getElementById('listen-status').innerText = "It is quiet right now. No goodbyes found.";
-                return;
-            }
-
-            // Memory logic so we don't repeat
-            let playedIds = JSON.parse(sessionStorage.getItem('playedGoodbyes') || '[]');
-            const unheardMessages = data.filter(msg => !playedIds.includes(msg.id));
-
-            if (unheardMessages.length === 0) {
-                document.getElementById('listen-status').innerText = "You have heard all the goodbyes for now. Rest well.";
-                return;
-            }
-
-            const randomMsg = unheardMessages[Math.floor(Math.random() * unheardMessages.length)];
-            playedIds.push(randomMsg.id);
-            sessionStorage.setItem('playedGoodbyes', JSON.stringify(playedIds));
-
-            audioPlayer.src = randomMsg.audio_url;
-            document.getElementById('listen-status').innerText = "Listening to a stranger...";
-            document.getElementById('audio-player-container').classList.remove('hidden');
-            
-            audioPlayer.onended = () => {
-                document.getElementById('listen-status').innerText = "The message has ended.";
-            };
-        }
-    </script>
-</body>
-</html>
+            const { data: uploadData,
