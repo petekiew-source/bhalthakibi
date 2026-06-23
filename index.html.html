@@ -39,7 +39,7 @@
             <p class="text-base md:text-lg text-white font-normal tracking-wide">Anonymous. No account. No data. Just your voice.</p>
         </div>
 
-        <div id="record-screen" class="hidden flex-col items-center justify-center w-full max-w-md h-full text-center space-y-12">
+        <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full text-center space-y-12">
             <button onclick="showScreen('home-screen')" class="absolute top-2 left-2 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
             
             <h2 class="text-3xl md:text-4xl font-normal tracking-wide text-white">Say your goodbye</h2>
@@ -56,10 +56,10 @@
             <p id="record-status" class="text-xl md:text-2xl text-white font-normal px-4 leading-relaxed">Press the white circle to speak your heart</p>
         </div>
 
-        <div id="listen-screen" class="hidden flex-col items-center justify-center w-full max-w-md h-full text-center space-y-12">
+        <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full text-center space-y-12">
             <button onclick="showScreen('home-screen')" class="absolute top-2 left-2 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
 
-            <p id="listen-status" class="text-2xl md:text-3xl text-white font-normal tracking-wide px-4">Finding a voice...</p>
+            <p id="listen-status" class="text-xl md:text-2xl text-white font-normal tracking-wide px-6 leading-relaxed max-w-lg mx-auto">Finding a voice...</p>
 
             <div id="audio-player-container" class="hidden flex flex-col items-center w-full space-y-12">
                 <audio id="audio-player" autoplay crossorigin="anonymous" class="hidden"></audio>
@@ -107,11 +107,9 @@
         window.addEventListener('mousemove', (e) => {
             const distance = Math.hypot(e.clientX - lastX, e.clientY - lastY);
             
-            // Increased movement distance spacing for an open, clean pond feeling
             if (distance > 24) { 
-                // Math.random() introduces chaotic nature profiles to every wave generation
                 const randomMax = (window.innerWidth > 768 ? 90 : 65) + Math.random() * 60;
-                const randomSpeed = 0.45 + Math.random() * 0.4; // Halved baseline speed for a peaceful flow
+                const randomSpeed = 0.45 + Math.random() * 0.4; 
                 const randomOpacity = 0.22 + Math.random() * 0.12; 
 
                 ripples.push({
@@ -122,7 +120,7 @@
                     baseOpacity: randomOpacity,
                     opacity: randomOpacity,
                     speed: randomSpeed,
-                    lineWidth: 1.2 + Math.random() * 1.5 // Custom varied profile thickness
+                    lineWidth: 1.2 + Math.random() * 1.5 
                 });
                 lastX = e.clientX;
                 lastY = e.clientY;
@@ -141,14 +139,12 @@
                     continue;
                 }
                 
-                // Primary surface crest line
                 waterCtx.beginPath();
                 waterCtx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
                 waterCtx.strokeStyle = `rgba(255, 255, 255, ${r.opacity})`;
                 waterCtx.lineWidth = r.lineWidth;
                 waterCtx.stroke();
 
-                // Echo trailing secondary ring for depth reflection
                 if (r.radius > 22) {
                     waterCtx.beginPath();
                     waterCtx.arc(r.x, r.y, r.radius - 22, 0, Math.PI * 2);
@@ -356,7 +352,8 @@
             const unheardMessages = data.filter(msg => !playedIds.includes(msg.id));
 
             if (unheardMessages.length === 0) {
-                document.getElementById('listen-status').innerText = "You have heard all the goodbyes for now. Rest well.";
+                // Incorporating your beautiful chosen phrase right here
+                document.getElementById('listen-status').innerText = "Every goodbye has found a home in your listening. Thank you for holding space for these voices.";
                 return;
             }
 
