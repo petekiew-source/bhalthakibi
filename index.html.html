@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BHAL PRA THAKIBI DEH!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,71 +10,72 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #3bdce2; color: #FFFFFF; font-family: ui-sans-serif, system-ui, sans-serif; overflow: hidden; }
+        /* 100dvh ensures mobile browsers never crop the bottom footer behind toolbars */
+        body { background-color: #3bdce2; color: #FFFFFF; font-family: ui-sans-serif, system-ui, sans-serif; overflow: hidden; min-h: 100dvh; min-h: -webkit-fill-available; }
         .hidden { display: none !important; }
         .title-font { font-family: 'Montserrat', sans-serif; font-weight: 900; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between relative p-6 select-none w-full">
+<body class="min-h-[100dvh] flex flex-col justify-between relative p-4 sm:p-6 select-none w-full native-viewport">
 
     <canvas id="water-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0"></canvas>
 
-    <main class="flex-1 flex flex-col items-center justify-center w-full z-10 relative">
+    <main class="flex-1 flex flex-col items-center justify-center w-full z-10 relative px-2">
         
-        <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center space-y-8">
+        <div id="home-screen" class="text-center w-full max-w-3xl flex flex-col items-center justify-center space-y-10">
             <div class="space-y-4 w-full overflow-hidden">
-                <h1 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
-                <p class="text-xl md:text-2xl text-white font-medium tracking-wide">A place to say goodbye</p>
+                <h1 class="text-[6.8vw] xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight uppercase text-white title-font leading-none whitespace-nowrap">BHAL PRA THAKIBI DEH!</h1>
+                <p class="text-lg sm:text-xl md:text-2xl text-white font-medium tracking-wide">A place to say goodbye</p>
             </div>
             
-            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center w-full sm:w-auto">
-                <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg bg-[#3bdce2]/20 backdrop-blur-sm">
+            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center w-full sm:w-auto">
+                <button onclick="showScreen('record-screen')" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] active:scale-95 transition-all duration-300 text-white font-medium text-lg bg-[#3bdce2]/20 backdrop-blur-sm min-h-[54px] flex items-center justify-center">
                     Say your goodbye
                 </button>
-                <button onclick="showScreen('listen-screen'); fetchRandomGoodbye();" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium text-lg bg-[#3bdce2]/20 backdrop-blur-sm">
+                <button onclick="showScreen('listen-screen'); fetchRandomGoodbye();" class="px-8 py-4 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] active:scale-95 transition-all duration-300 text-white font-medium text-lg bg-[#3bdce2]/20 backdrop-blur-sm min-h-[54px] flex items-center justify-center">
                     Hear a stranger's goodbye
                 </button>
             </div>
             
-            <p class="text-base md:text-lg text-white font-normal tracking-wide">Anonymous. No account. No data. Just your voice.</p>
+            <p class="text-sm sm:text-base md:text-lg text-white font-normal tracking-wide px-4 max-w-md">Anonymous. No account. No data. Just your voice.</p>
         </div>
 
-        <div id="record-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full text-center space-y-12">
-            <button onclick="showScreen('home-screen')" class="absolute top-2 left-2 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
+        <div id="record-screen" class="hidden flex-col items-center justify-center w-full max-w-md h-full text-center space-y-10 py-4">
+            <button onclick="showScreen('home-screen')" class="absolute top-0 left-2 sm:left-0 text-base tracking-wide text-white hover:opacity-60 transition-opacity p-2">← Back</button>
             
-            <h2 class="text-3xl md:text-4xl font-normal tracking-wide text-white">Say your goodbye</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-normal tracking-wide text-white">Say your goodbye</h2>
             
-            <div id="progress-container" class="w-64 h-0.5 bg-white/25 rounded-full opacity-0 transition-opacity duration-300 mx-auto">
+            <div id="progress-container" class="w-48 sm:w-64 h-0.5 bg-white/25 rounded-full opacity-0 transition-opacity duration-300 mx-auto">
                 <div id="progress-bar" class="h-full bg-white w-full transition-all duration-1000 ease-linear rounded-full"></div>
             </div>
             
-            <div class="h-32 flex items-center justify-center">
-                <button id="start-btn" onclick="startRecording()" class="w-20 h-20 bg-white rounded-full hover:scale-105 transition-transform shadow-md" aria-label="Start recording"></button>
-                <button id="stop-btn" onclick="stopRecording()" class="hidden w-16 h-16 bg-white rounded-md animate-pulse shadow-md" aria-label="Stop recording"></button>
+            <div class="h-28 flex items-center justify-center">
+                <button id="start-btn" onclick="startRecording()" class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full active:scale-90 transition-transform shadow-md" aria-label="Start recording"></button>
+                <button id="stop-btn" onclick="stopRecording()" class="hidden w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-md animate-pulse shadow-md" aria-label="Stop recording"></button>
             </div>
             
-            <p id="record-status" class="text-xl md:text-2xl text-white font-normal px-4 leading-relaxed">Press the white circle to speak your heart</p>
+            <p id="record-status" class="text-lg sm:text-xl md:text-2xl text-white font-normal px-6 leading-relaxed">Press the white circle to speak your heart</p>
         </div>
 
-        <div id="listen-screen" class="hidden flex flex-col items-center justify-center w-full max-w-md h-full text-center space-y-12">
-            <button onclick="showScreen('home-screen')" class="absolute top-2 left-2 text-base tracking-wide text-white hover:opacity-60 transition-opacity">← Back</button>
+        <div id="listen-screen" class="hidden flex-col items-center justify-center w-full max-w-md h-full text-center space-y-10 py-4">
+            <button onclick="showScreen('home-screen')" class="absolute top-0 left-2 sm:left-0 text-base tracking-wide text-white hover:opacity-60 transition-opacity p-2">← Back</button>
 
-            <p id="listen-status" class="text-xl md:text-2xl text-white font-normal tracking-wide px-6 leading-relaxed max-w-lg mx-auto">Finding a voice...</p>
+            <p id="listen-status" class="text-lg sm:text-xl md:text-2xl text-white font-normal tracking-wide px-6 leading-relaxed max-w-lg mx-auto">Finding a voice...</p>
 
-            <div id="audio-player-container" class="hidden flex flex-col items-center w-full space-y-12">
+            <div id="audio-player-container" class="hidden flex flex-col items-center w-full space-y-10">
                 <audio id="audio-player" autoplay crossorigin="anonymous" class="hidden"></audio>
                 
-                <canvas id="waveform-canvas" class="w-64 h-16 mx-auto"></canvas>
+                <canvas id="waveform-canvas" class="w-48 sm:w-64 h-16 mx-auto"></canvas>
                 
-                <button onclick="fetchRandomGoodbye()" class="px-8 py-3 text-base border border-white rounded-full hover:bg-white hover:text-[#3bdce2] transition-all duration-300 text-white font-medium">
+                <button onclick="fetchRandomGoodbye()" class="px-8 py-3 w-full sm:w-auto border border-white rounded-full hover:bg-white hover:text-[#3bdce2] active:scale-95 transition-all duration-300 text-white font-medium text-base min-h-[48px] flex items-center justify-center">
                     Hear another
                 </button>
             </div>
         </div>
     </main>
 
-    <footer id="site-footer" class="w-full text-center pb-4 z-10 relative pointer-events-none">
-        <p class="text-xs sm:text-sm text-white italic font-light tracking-wide opacity-95">
+    <footer id="site-footer" class="w-full text-center pb-8 sm:pb-4 z-10 relative pointer-events-none px-4">
+        <p class="text-[11px] sm:text-xs md:text-sm text-white italic font-light tracking-wide opacity-95 max-w-sm sm:max-w-none mx-auto leading-relaxed">
             In loving memory of my dearest sister Liethonuo "Sunny" Kiewhuo 1992-2026
         </p>
     </footer>
@@ -104,28 +105,41 @@
         resizeWaterCanvas();
 
         let lastX = 0, lastY = 0;
-        window.addEventListener('mousemove', (e) => {
-            const distance = Math.hypot(e.clientX - lastX, e.clientY - lastY);
-            
-            if (distance > 24) { 
-                const randomMax = (window.innerWidth > 768 ? 90 : 65) + Math.random() * 60;
+        
+        // Central wave engine shared by desktop cursor tracking and mobile touch points
+        function registerRippleNode(clientX, clientY) {
+            const distance = Math.hypot(clientX - lastX, clientY - lastY);
+            if (distance > 22) { 
+                const randomMax = (window.innerWidth > 768 ? 90 : 55) + Math.random() * 45;
                 const randomSpeed = 0.45 + Math.random() * 0.4; 
                 const randomOpacity = 0.22 + Math.random() * 0.12; 
 
                 ripples.push({
-                    x: e.clientX,
-                    y: e.clientY,
+                    x: clientX,
+                    y: clientY,
                     radius: 1,
                     maxRadius: randomMax,
                     baseOpacity: randomOpacity,
                     opacity: randomOpacity,
                     speed: randomSpeed,
-                    lineWidth: 1.2 + Math.random() * 1.5 
+                    lineWidth: 1.2 + Math.random() * 1.2 
                 });
-                lastX = e.clientX;
-                lastY = e.clientY;
+                lastX = clientX;
+                lastY = clientY;
             }
-        });
+        }
+
+        // Desktop Cursor Input
+        window.addEventListener('mousemove', (e) => registerRippleNode(e.clientX, e.clientY));
+        
+        // Smartphone Finger Touch Inputs (Keeps background active on screen drag/tap)
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) registerRippleNode(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
+        
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) registerRippleNode(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
 
         function animateWater() {
             waterCtx.clearRect(0, 0, waterCanvas.width, waterCanvas.height);
@@ -343,7 +357,6 @@
                 .select('id, audio_url')
                 .eq('is_approved', true);
 
-            // --- Updated Soft Invitation for Empty Database State ---
             if (error || !data || data.length === 0) {
                 document.getElementById('listen-status').innerText = "The line is completely quiet right now. There are no messages waiting—perhaps you will be the first to speak your heart?";
                 return;
